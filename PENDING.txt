@@ -1,0 +1,15 @@
+OPEN ISSUES
+===========
+- Team presence updates can be late. Ghost lobbies can remain after missions.
+- Multi-player re-sortie can fail with a host-disconnect error.
+- Player medals: (but Operator, mercenary and boss awards are implemented)
+  AC leg-type and other medal families are incomplete.
+
+PLAYTEST REQUIRED
+=================
+
+- Elite Squad and Reaper Squad eligibility and matchmaking. (Not sure what the vanilla prerequisites are) 
+- Complete territory rotation, capture and Verdict Day cycle.
+- World Log timing and event display.
+- Custom territory upload, download and use in matches.
+

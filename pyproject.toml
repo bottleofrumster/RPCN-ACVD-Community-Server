@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "acvd-server"
+version = "0.2.0"
+description = "Clean-room ACVD service reimplementation for RPCS3"
+readme = {file = "README.txt", content-type = "text/plain"}
+requires-python = ">=3.11"
+dependencies = ["cryptography>=41"]
+
+[project.optional-dependencies]
+harness = ["Pillow>=10"]
+test = ["pytest>=8", "pytest-asyncio>=0.23", "Pillow>=10"]
+dev = ["ruff==0.16.6"]
+desktop-test = ["PySide6==6.11.2"]
+
+[project.scripts]
+acvd-server = "acvd_server.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = ["native_assets: requires separately retained game screenshot fixtures"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+# Review owned Python separately from private records and third-party projects.
+include = [
+    "src/**/*.py", "tests/**/*.py", "desktop/**/*.py", "client/*.py", "scripts/*.py",
+    "tools/**/*.py",
+    "tools/analysis/**/*.py", "tools/acvd_protocol_catalog.py", "tools/acvd_peer_message_summary.py",
+    "tools/recover_offline_inventory_history.py",
+    "tools/migrate_team_creation_fields.py",
+]
+extend-exclude = ["backups", "evidence", "data", "logs", "state", "dist",
+                  ".desktop-venv", ".review-venv", ".venv", "tools/SPRXPatcher", "build", "releases"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+# Legacy CLI shims must establish the repository path before the canonical import.
+"tools/extract_*.py" = ["E402"]
+"tools/acvd_protocol_catalog.py" = ["E402"]
+"tools/acvd_peer_message_summary.py" = ["E402"]
+# These retained CLI entry points add their own tool directory before imports.
+"tools/acvd_capture_daemon.py" = ["E402"]
+"tools/acvd_mock_control.py" = ["E402"]
+"tools/acvd_screen_action.py" = ["E402"]
+"tools/analysis/protocol_catalog.py" = ["E402"]
+"desktop/run.py" = ["E402"]

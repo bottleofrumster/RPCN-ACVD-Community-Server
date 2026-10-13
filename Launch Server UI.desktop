@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Launch ACVD Server UI
+Comment=Open the local ACVD operator console
+Exec=python3 -c "import pathlib,sys,os; p=pathlib.Path(sys.argv[1]).resolve().with_name('Launch Server UI.sh'); os.execv(str(p), [str(p)])" %k
+Icon=applications-games
+Terminal=true
+Categories=Game;

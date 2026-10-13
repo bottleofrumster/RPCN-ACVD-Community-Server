@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "files": {
+    "operator-combat-result.hex": {
+      "sha256": "9a6326be49e5230d3830a75b16c35cc2f272e88f8cd1e514292dc1db7013eedd",
+      "provenance": "Retained application-level combat-result test vector (78 bytes), recursively decoded on 2026-10-10: integer fields only, including numeric participant identifiers. No names, addresses, authentication tickets, keys, transport envelope, or game assets. Owner authorized project resources for publication; this is not a synthetic traffic claim."
+    },
+    "story-destroyed-unac-result.hex": {
+      "sha256": "1e62c77a7c467308e54512a7d4d10d63897fd5ea096145169494b76d982c3842",
+      "provenance": "Retained application-level mission-result test vector (59 bytes), recursively decoded on 2026-10-10: integer fields only, including numeric participant identifiers. No names, addresses, authentication tickets, keys, transport envelope, or game assets. Owner authorized project resources for publication; this is not a synthetic traffic claim."
+    },
+    "story-subquest-result.hex": {
+      "sha256": "b42f4893deb6189adc37af00ec0183e715f13c83fa6e7b5b7214a160cc000745",
+      "provenance": "Retained application-level mission-result test vector (60 bytes), recursively decoded on 2026-10-10: integer fields only, including numeric participant identifiers. No names, addresses, authentication tickets, keys, transport envelope, or game assets. Owner authorized project resources for publication; this is not a synthetic traffic claim."
+    }
+  }
+}

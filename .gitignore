@@ -1,0 +1,44 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+.venv/
+.desktop-venv/
+.review-venv/
+.ruff_cache/
+backups/
+native/libacvd_cwc.so
+keys/*.pem
+logs/*.jsonl
+state/*.json
+
+# Private runtime stores, recovery inputs and separate client-release assets.
+/data/
+/keys/
+/logs/
+/state/
+/incoming/
+/client/*
+!/client/*.py
+!/client/*.json
+!/client/README.txt
+!/client/rpcs3/
+/client/rpcs3/*
+!/client/rpcs3/README.txt
+!/client/rpcs3/signaling-context-ownership.patch
+/dist/
+
+# Generated build output and native observation artifacts, not their sources.
+/build/
+/releases/desktop/ACVD-Control-Center
+/releases/server/
+/.venv-*/
+/tools/*.so
+/tools/acvd_nxr_syscall_probe
+/evidence/live-captures/
+/evidence/live-probes/
+/evidence/live-trials/
+
+# Private retained research can contain licensed binaries and authentication data.
+/evidence/retained-research-*/
+/releases/ACVD-source-review.zip

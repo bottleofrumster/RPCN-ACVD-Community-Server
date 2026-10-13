@@ -1,0 +1,833 @@
+{
+  "provenance": "Synthetic calls to pre-cleanup2 server at7ac716c; compatibility only, not native qualification",
+  "cases": [
+    {
+      "function": "_proto_datetime",
+      "kwargs": {
+        "value": {
+          "$datetime": "2026-09-07T04:00:00.123000+00:00"
+        }
+      },
+      "expected": {
+        "$bytes": "08ea0f10091807200428003000387b"
+      }
+    },
+    {
+      "function": "_world_basic_info",
+      "kwargs": {
+        "now": {
+          "$datetime": "2026-09-07T04:00:00.123000+00:00"
+        }
+      },
+      "expected": {
+        "$bytes": "08011228080310001800220f08ea0f10091806200428003000387b2a0f08eb0f10091807200428003000387b1800220c0801100018002204080010003a0f08ea0f10091807200428003000387b4000"
+      }
+    },
+    {
+      "function": "_world_current_info",
+      "kwargs": {
+        "now": {
+          "$datetime": "2026-09-07T04:00:00.123000+00:00"
+        }
+      },
+      "expected": {
+        "$bytes": "0801100318022217080110001a0f08ea0f10091807200428003000387b20002800320f08ea0f10091807200428003000387b"
+      }
+    },
+    {
+      "function": "_world_log",
+      "kwargs": {
+        "now": {
+          "$datetime": "2026-09-07T04:00:00.123000+00:00"
+        },
+        "requested_phase": 0
+      },
+      "expected": {
+        "$bytes": "0801100322060801100018002a130802220f08ea0f10091807200428003000387b320f08ea0f10091806200428003000387b3a0f08ea0f10091807200428003000387b"
+      }
+    },
+    {
+      "function": "_world_log",
+      "kwargs": {
+        "now": {
+          "$datetime": "2026-09-07T04:00:00.123000+00:00"
+        },
+        "requested_phase": 2
+      },
+      "expected": {
+        "$bytes": "08011003320f08ea0f10091806200428003000387b3a0f08ea0f10091807200428003000387b"
+      }
+    },
+    {
+      "function": "_world_log",
+      "kwargs": {
+        "now": {
+          "$datetime": "2026-09-07T04:00:00.123000+00:00"
+        },
+        "requested_phase": 99
+      },
+      "expected": {
+        "$bytes": "08011003320f08ea0f10091806200428003000387b3a0f08ea0f10091807200428003000387b"
+      }
+    },
+    {
+      "function": "_faction_selection",
+      "kwargs": {
+        "selected_faction_id": 0
+      },
+      "expected": {
+        "$bytes": "0a0208010a0208020a0208031000"
+      }
+    },
+    {
+      "function": "_canonical_faction_selection_id",
+      "kwargs": {
+        "requested_faction_id": 0
+      },
+      "expected": 0
+    },
+    {
+      "function": "_faction_selection",
+      "kwargs": {
+        "selected_faction_id": 1
+      },
+      "expected": {
+        "$bytes": "0a0208010a0208020a0208031001"
+      }
+    },
+    {
+      "function": "_canonical_faction_selection_id",
+      "kwargs": {
+        "requested_faction_id": 1
+      },
+      "expected": 1
+    },
+    {
+      "function": "_faction_selection",
+      "kwargs": {
+        "selected_faction_id": 2
+      },
+      "expected": {
+        "$bytes": "0a0208010a0208020a0208031002"
+      }
+    },
+    {
+      "function": "_canonical_faction_selection_id",
+      "kwargs": {
+        "requested_faction_id": 2
+      },
+      "expected": 2
+    },
+    {
+      "function": "_faction_selection",
+      "kwargs": {
+        "selected_faction_id": 3
+      },
+      "expected": {
+        "$bytes": "0a0208010a0208020a0208031003"
+      }
+    },
+    {
+      "function": "_canonical_faction_selection_id",
+      "kwargs": {
+        "requested_faction_id": 3
+      },
+      "expected": 3
+    },
+    {
+      "function": "_faction_selection",
+      "kwargs": {
+        "selected_faction_id": 99
+      },
+      "expected": {
+        "$bytes": "0a0208010a0208020a0208031063"
+      }
+    },
+    {
+      "function": "_canonical_faction_selection_id",
+      "kwargs": {
+        "requested_faction_id": 99
+      },
+      "expected": 0
+    },
+    {
+      "function": "_faction_struggle_results",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "0a2008010a001001120018641a002001220028012a003001320038013a00400142000a2008020a001002120018321a002001220028012a003001320038013a00400142000a2008030a001003120018191a002001220028012a003001320038013a00400142001001120018011a002001220028012a003001320038013a0040014200"
+      }
+    },
+    {
+      "function": "_territory_layout_update_response",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "080010001800200028003000380040004800"
+      }
+    },
+    {
+      "function": "_empty_ranking_list_response",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "0800"
+      }
+    },
+    {
+      "function": "_ranking_basic_info",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "080010001800"
+      }
+    },
+    {
+      "function": "_my_player_ranking_response",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "0a16080012060800100018001a0608001000180020002800"
+      }
+    },
+    {
+      "function": "_team_rank_info",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "0801100018002000"
+      }
+    },
+    {
+      "function": "_team_color_argb32",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "0800100018002000"
+      }
+    },
+    {
+      "function": "_team_record",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "080010001d0000000028003000"
+      }
+    },
+    {
+      "function": "_team_medal_info",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "08000a001000120018001a002000220028002a003000320038003a0040004200"
+      }
+    },
+    {
+      "function": "_mercenary_ranking_list_response",
+      "kwargs": {},
+      "expected": {
+        "$bytes": "1000"
+      }
+    },
+    {
+      "function": "_territory_cannon_layout",
+      "kwargs": {
+        "player_id": 11
+      },
+      "expected": {
+        "$bytes": "100b1a002001"
+      }
+    },
+    {
+      "function": "_territory_cannon_layout",
+      "kwargs": {
+        "player_id": 11,
+        "layout": {
+          "$bytes": "6c61796f75742d6279746573"
+        }
+      },
+      "expected": {
+        "$bytes": "100b1a0c6c61796f75742d62797465732000"
+      }
+    },
+    {
+      "function": "_territory_info",
+      "kwargs": {
+        "player_id": 11,
+        "season_id": 3,
+        "area_id": 2
+      },
+      "expected": {
+        "$bytes": "080008010a00100010011200180018011a00200020012200280028012a00300030013200380038013a00400040014200480048014a00500050015200580058015a0060006001620008e80710a08d061802200b2803"
+      }
+    },
+    {
+      "function": "_team_update_date_info",
+      "kwargs": {
+        "now": {
+          "$datetime": "2026-09-07T04:00:00.123000+00:00"
+        },
+        "online_id": "Host"
+      },
+      "expected": {
+        "$bytes": "08001204486f73741a04486f7374220f08ea0f10091807200428003000387b2a04486f7374"
+      }
+    },
+    {
+      "function": "_team_info",
+      "kwargs": {
+        "team": {
+          "team_id": 1,
+          "leader_online_id": "Host",
+          "leader_player_id": 11,
+          "name": "Example",
+          "member_records": [
+            {
+              "online_id": "Host",
+              "player_id": 11,
+              "member_id": 1
+            },
+            {
+              "online_id": "Guest",
+              "player_id": 22,
+              "member_id": 2
+            }
+          ],
+          "profile_text": "Ready",
+          "comment": "Test",
+          "operation_base": 2,
+          "language": 1,
+          "pay_apportionment": 2,
+          "soldier_id": 3
+        },
+        "now": {
+          "$datetime": "2026-09-07T04:00:00.123000+00:00"
+        }
+      },
+      "expected": {
+        "$bytes": "0801100b18022204486f73742a074578616d706c6530003800400048005002580160036800720454657374780082012508001204486f73741a04486f7374220f08ea0f10091807200428003000387b2a04486f73749a01080800100018002000a2012508001204486f73741a04486f7374220f08ea0f10091807200428003000387b2a04486f7374a80103b2012508001204486f73741a04486f7374220f08ea0f10091807200428003000387b2a04486f7374c80101d201055265616479d80101e20108080b100118002001e201080816100118002002e80100f201080801100018002000f80100"
+      }
+    },
+    {
+      "function": "_user_info",
+      "kwargs": {
+        "player_id": 22,
+        "online_id": "Guest",
+        "team": {
+          "team_id": 1,
+          "leader_online_id": "Host",
+          "leader_player_id": 11,
+          "name": "Example",
+          "member_records": [
+            {
+              "online_id": "Host",
+              "player_id": 11,
+              "member_id": 1
+            },
+            {
+              "online_id": "Guest",
+              "player_id": 22,
+              "member_id": 2
+            }
+          ],
+          "profile_text": "Ready",
+          "comment": "Test",
+          "operation_base": 2,
+          "language": 1,
+          "pay_apportionment": 2,
+          "soldier_id": 3
+        },
+        "member_id": 2,
+        "team_session_member": true,
+        "language": 1,
+        "status": "Ready"
+      },
+      "expected": {
+        "$bytes": "0816120547756573741a05477565737422055265616479300038004801500258006002680170007801"
+      }
+    },
+    {
+      "function": "_user_info",
+      "kwargs": {
+        "player_id": 22,
+        "online_id": "Guest",
+        "team": null,
+        "penalized": true
+      },
+      "expected": {
+        "$bytes": "0816120547756573741a0547756573742200300038004800500058006000680070017800"
+      }
+    },
+    {
+      "function": "_team_ranking_info",
+      "kwargs": {
+        "team": {
+          "team_id": 1,
+          "leader_online_id": "Host",
+          "leader_player_id": 11,
+          "name": "Example",
+          "member_records": [
+            {
+              "online_id": "Host",
+              "player_id": 11,
+              "member_id": 1
+            },
+            {
+              "online_id": "Guest",
+              "player_id": 22,
+              "member_id": 2
+            }
+          ],
+          "profile_text": "Ready",
+          "comment": "Test",
+          "operation_base": 2,
+          "language": 1,
+          "pay_apportionment": 2,
+          "soldier_id": 3
+        }
+      },
+      "expected": {
+        "$bytes": "080012074578616d706c6518002000"
+      }
+    },
+    {
+      "function": "_team_id_search_response",
+      "kwargs": {
+        "team_ids": [
+          1,
+          17,
+          1234
+        ]
+      },
+      "expected": {
+        "$bytes": "0801081108d209"
+      }
+    },
+    {
+      "function": "_team_info_list_response",
+      "kwargs": {
+        "teams": [
+          {
+            "team_id": 1,
+            "leader_online_id": "Host",
+            "leader_player_id": 11,
+            "name": "Example",
+            "member_records": [
+              {
+                "online_id": "Host",
+                "player_id": 11,
+                "member_id": 1
+              },
+              {
+                "online_id": "Guest",
+                "player_id": 22,
+                "member_id": 2
+              }
+            ],
+            "profile_text": "Ready",
+            "comment": "Test",
+            "operation_base": 2,
+            "language": 1,
+            "pay_apportionment": 2,
+            "soldier_id": 3
+          }
+        ],
+        "now": {
+          "$datetime": "2026-09-07T04:00:00.123000+00:00"
+        }
+      },
+      "expected": {
+        "$bytes": "0ae8010801100b18022204486f73742a074578616d706c6530003800400048005002580160036800720454657374780082012508001204486f73741a04486f7374220f08ea0f10091807200428003000387b2a04486f73749a01080800100018002000a2012508001204486f73741a04486f7374220f08ea0f10091807200428003000387b2a04486f7374a80103b2012508001204486f73741a04486f7374220f08ea0f10091807200428003000387b2a04486f7374c80101d201055265616479d80101e20108080b100118002001e201080816100118002002e80100f201080801100018002000f80100"
+      }
+    },
+    {
+      "function": "_team_session_response",
+      "kwargs": {
+        "team": {
+          "team_id": 1,
+          "leader_online_id": "Host",
+          "leader_player_id": 11,
+          "name": "Example",
+          "member_records": [
+            {
+              "online_id": "Host",
+              "player_id": 11,
+              "member_id": 1
+            },
+            {
+              "online_id": "Guest",
+              "player_id": 22,
+              "member_id": 2
+            }
+          ],
+          "profile_text": "Ready",
+          "comment": "Test",
+          "operation_base": 2,
+          "language": 1,
+          "pay_apportionment": 2,
+          "soldier_id": 3
+        },
+        "profile": {
+          "member_id": 2
+        },
+        "player_id": 22
+      },
+      "expected": {
+        "$bytes": "08011002"
+      }
+    },
+    {
+      "function": "_team_session_member_push",
+      "kwargs": {
+        "session_id": 1,
+        "player_id": 11,
+        "member_np_identity": {
+          "$bytes": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324"
+        },
+        "member_id": 1,
+        "online_id": "Host"
+      },
+      "expected": {
+        "$bytes": "0801100b1a04486f737420012a25000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324"
+      }
+    },
+    {
+      "function": "_team_session_leave_push",
+      "kwargs": {
+        "session_id": 1,
+        "member_id": 2
+      },
+      "expected": {
+        "$bytes": "08011002"
+      }
+    },
+    {
+      "function": "_team_session_join_response",
+      "kwargs": {
+        "team_session": {
+          "members": {
+            "Host": {
+              "player_id": 11,
+              "member_id": 1,
+              "np_identity": {
+                "$bytes": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324"
+              }
+            },
+            "Guest": {
+              "player_id": 22,
+              "member_id": 2,
+              "np_identity": {
+                "$bytes": "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425"
+              }
+            }
+          }
+        }
+      },
+      "expected": {
+        "$bytes": "0a2d081612250102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425180220010a2d080b1225000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232418012000"
+      }
+    },
+    {
+      "function": "_team_session_member_push_pair",
+      "kwargs": {
+        "session_id": 1,
+        "existing_online_id": "Host",
+        "existing_member": {
+          "player_id": 11,
+          "member_id": 1,
+          "np_identity": {
+            "$bytes": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324"
+          }
+        },
+        "new_online_id": "Guest",
+        "new_player_id": 22,
+        "new_member_id": 2,
+        "new_np_identity": {
+          "$bytes": "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425"
+        }
+      },
+      "expected": {
+        "$tuple": [
+          {
+            "$bytes": "0801100b1a04486f737420012a25000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324"
+          },
+          {
+            "$bytes": "080110161a05477565737420022a250102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425"
+          }
+        ]
+      }
+    },
+    {
+      "function": "_vote_kick_member_response",
+      "kwargs": {
+        "member_id": 2
+      },
+      "expected": {
+        "$bytes": "0802"
+      }
+    },
+    {
+      "function": "_register_prepare_response",
+      "kwargs": {
+        "prepare_id": 11,
+        "state": 1,
+        "token": "prepare"
+      },
+      "expected": {
+        "$bytes": "080b100b1801220770726570617265"
+      }
+    },
+    {
+      "function": "_matching_result_push",
+      "kwargs": {
+        "prepare_id": 11,
+        "counterpart_prepare_id": 22,
+        "is_host": true
+      },
+      "expected": {
+        "$bytes": "080b10161801200028003000380040004801"
+      }
+    },
+    {
+      "function": "_matching_result_for_members",
+      "kwargs": {
+        "recipient": {
+          "prepare_id": 11
+        },
+        "counterpart": {
+          "prepare_id": 22
+        },
+        "criteria": {},
+        "is_host": true
+      },
+      "expected": {
+        "$bytes": "080b10161801200028013000380040004801"
+      }
+    },
+    {
+      "function": "_matching_result_push",
+      "kwargs": {
+        "prepare_id": 11,
+        "counterpart_prepare_id": 22,
+        "is_host": false
+      },
+      "expected": {
+        "$bytes": "080b10161800200028003000380040004801"
+      }
+    },
+    {
+      "function": "_matching_result_for_members",
+      "kwargs": {
+        "recipient": {
+          "prepare_id": 11
+        },
+        "counterpart": {
+          "prepare_id": 22
+        },
+        "criteria": {},
+        "is_host": false
+      },
+      "expected": {
+        "$bytes": "080b10161800200128003000380040004801"
+      }
+    },
+    {
+      "function": "_match_room_info_push",
+      "kwargs": {
+        "recipient_prepare_id": 11,
+        "room_id": 123456,
+        "room_password": {
+          "$bytes": "5052565450535744"
+        },
+        "room_owner_online_id": "Host"
+      },
+      "expected": {
+        "$bytes": "080b10c0c4071a8104004e58525603f2000000486f737400000000000000000000000000105052565450535744000000000001e24000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "function": "_mercenary_rank_response",
+      "kwargs": {
+        "rank": 3
+      },
+      "expected": {
+        "$bytes": "0803"
+      }
+    },
+    {
+      "function": "_mercenary_ranking_info",
+      "kwargs": {
+        "online_id": "Guest",
+        "team_name": "Example"
+      },
+      "expected": {
+        "$bytes": "08001205477565737422074578616d706c6528003000"
+      }
+    },
+    {
+      "function": "_mercenary_self_ranking_response",
+      "kwargs": {
+        "online_id": "Guest",
+        "team_name": "Example"
+      },
+      "expected": {
+        "$bytes": "0a1608001205477565737422074578616d706c6528003000"
+      }
+    },
+    {
+      "function": "_mercenary_continuation_pairs",
+      "kwargs": {
+        "payload": {
+          "$bytes": "0a04080b1016"
+        }
+      },
+      "expected": [
+        {
+          "$tuple": [
+            11,
+            22
+          ]
+        }
+      ]
+    },
+    {
+      "function": "_mercenary_search_result",
+      "kwargs": {
+        "registration": {
+          "player_id": 22,
+          "online_id": "Guest",
+          "ac_data": {
+            "$bytes": "0170726f66696c65"
+          },
+          "result_values": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "team": {
+          "team_id": 1,
+          "leader_online_id": "Host",
+          "leader_player_id": 11,
+          "name": "Example",
+          "member_records": [
+            {
+              "online_id": "Host",
+              "player_id": 11,
+              "member_id": 1
+            },
+            {
+              "online_id": "Guest",
+              "player_id": 22,
+              "member_id": 2
+            }
+          ],
+          "profile_text": "Ready",
+          "comment": "Test",
+          "operation_base": 2,
+          "language": 1,
+          "pay_apportionment": 2,
+          "soldier_id": 3
+        }
+      },
+      "expected": {
+        "$bytes": "0816120547756573741a05477565737422080170726f66696c6528013002380340044a0e08001000180020002800300038005000"
+      }
+    },
+    {
+      "function": "_mercenary_search_response",
+      "kwargs": {
+        "entries": [
+          {
+            "$tuple": [
+              {
+                "player_id": 22,
+                "online_id": "Guest",
+                "ac_data": {
+                  "$bytes": "0170726f66696c65"
+                },
+                "result_values": [
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              },
+              {
+                "team_id": 1,
+                "leader_online_id": "Host",
+                "leader_player_id": 11,
+                "name": "Example",
+                "member_records": [
+                  {
+                    "online_id": "Host",
+                    "player_id": 11,
+                    "member_id": 1
+                  },
+                  {
+                    "online_id": "Guest",
+                    "player_id": 22,
+                    "member_id": 2
+                  }
+                ],
+                "profile_text": "Ready",
+                "comment": "Test",
+                "operation_base": 2,
+                "language": 1,
+                "pay_apportionment": 2,
+                "soldier_id": 3
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "$bytes": "0a340816120547756573741a05477565737422080170726f66696c6528013002380340044a0e08001000180020002800300038005000"
+      }
+    },
+    {
+      "function": "_mercenary_message",
+      "kwargs": {
+        "message": {
+          "employer_player_id": 11,
+          "target_player_id": 22,
+          "message_id": 1,
+          "employer_online_id": "Host",
+          "employer_team_name": "Example",
+          "target_online_id": "Guest"
+        }
+      },
+      "expected": {
+        "$bytes": "0801120e080b1016180020002800300038001a04486f737422074578616d706c652a0c4869726520726571756573743a054775657374"
+      }
+    },
+    {
+      "function": "_mercenary_message_list_response",
+      "kwargs": {
+        "messages": [
+          {
+            "employer_player_id": 11,
+            "target_player_id": 22,
+            "message_id": 1,
+            "employer_online_id": "Host",
+            "employer_team_name": "Example",
+            "target_online_id": "Guest"
+          }
+        ]
+      },
+      "expected": {
+        "$bytes": "0a360801120e080b1016180020002800300038001a04486f737422074578616d706c652a0c4869726520726571756573743a054775657374"
+      }
+    },
+    {
+      "function": "_register_battle_result_response",
+      "kwargs": {},
+      "expected": {
+        "$bytes": ""
+      }
+    },
+    {
+      "function": "_register_battle_result_response",
+      "kwargs": {
+        "player_result": {
+          "$bytes": "080b180a20e807283230053802"
+        }
+      },
+      "expected": {
+        "$bytes": "0a0d180a20e807283230053802480b12080800100018002800"
+      }
+    }
+  ]
+}

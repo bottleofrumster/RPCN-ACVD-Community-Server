@@ -1,0 +1,88 @@
+Version: 1.2
+
+PPU-546acba4dd056f495ece5908935cc84a5b1b17ae:
+  "ACVD Community Server - Public":
+    Games:
+      "Armored Core: Verdict Day":
+        BLUS31194: [ 01.02 ]
+    Author: "ACVD community server project"
+    Notes: "Configure the server endpoint before use. Installs the regulation key, supplies RPCN-compatible room values, and safely defaults an unassigned World Mode battlefield."
+    Patch Version: 1.3.1
+    Patch:
+      # Preserve regional selection; localized hometowninfo.bin is supplied.
+      - [ be32, 0x004b51e4, 0x409e003c ]
+      - [ be32, 0x004b5264, 0x419eff9c ]
+      - [ be32, 0x004b5268, 0x4800004c ]
+      - [ be32, 0x0158a6f0, 0x3c000001 ]
+      - [ be32, 0x0158a6f4, 0x60000001 ]
+      - [ be32, 0x0158a6f8, 0x901a0000 ]
+      - [ be32, 0x0158a6fc, 0x3800000a ]
+      - [ be32, 0x0158a700, 0x901a0010 ]
+      - [ be32, 0x00e94318, 0x484cc6e8 ]
+      - [ be32, 0x01360a00, 0x8124000c ]
+      - [ be32, 0x01360a04, 0x786b0020 ]
+      - [ be32, 0x01360a08, 0x3d290004 ]
+      - [ be32, 0x01360a0c, 0x8009043c ]
+      - [ be32, 0x01360a10, 0x2f80ffff ]
+      - [ be32, 0x01360a14, 0x409e0008 ]
+      - [ be32, 0x01360a18, 0x38000001 ]
+      - [ be32, 0x01360a1c, 0x900b0000 ]
+      - [ be32, 0x01360a20, 0x4e800020 ]
+      - [ be64, 0x01a8de58, 0x003100390032002e ]
+      - [ be64, 0x01a8de60, 0x0030002e0032002e ]
+      - [ be64, 0x01a8de68, 0x0031000000000000 ]
+      - [ be64, 0x01a8de70, 0x0000000000000000 ]
+      - [ cutf8, 0x01a8e2b0, "http://192.0.2.1:8080/regulation/contents_101.bin" ]
+      - [ utf8, 0x01b6b130, "-----BEGIN RSA PUBLIC KEY-----\nMIIBCAKCAQEAo9IyBNE5Ce4E60ej9ii1Cm0dLCvt4znkXeheXNmHDt8LYAoc5icq\nENgTCh+557Mq75yCPmC6s599U3Bngh/u+dxqcODWJoz0fxwemtbAN94jBZgKBvLM\nKDII7ALxlgKUwvEgPd6+seIfbUzftCpQAThT8ZiXD8emwEyyUdLTgakSYkGN4FrO\n/LTy6vIz3R9sZhhCMMgMSUU6SjHBZVJLyezCoH7OYK4YxTROAf0le1AHa8THGE83\nMhgCGo77rV2ZcJosT+QYK2hhybYs8U9FYeiFCyY1Tc9LQigK/+vZxYdeSF+TssLq\nHK3gOo3xpnJ8N5aiGZ3ntH77i6luIpd8zQIBAw==\n-----END RSA PUBLIC KEY-----\n" ]
+
+  "ACVD Free Battle Cache Fallback":
+    Games:
+      "Armored Core: Verdict Day":
+        BLUS31194: [ 01.02 ]
+    Author: "ACVD community server project"
+    Patch Version: 0.4.0
+    Notes: "Keep local regulation when its buffer and BND3 header pass the cache guard. Keep this entry enabled when changing servers. Network signature checks stay active."
+    Patch:
+      - [ be32, 0x00922be8, 0x4905abfc ]
+      - [ be32, 0x0197d7e4, 0x3d2001f7 ]
+      - [ be32, 0x0197d7e8, 0x8149e0c4 ]
+      - [ be32, 0x0197d7ec, 0x2f8a0000 ]
+      - [ be32, 0x0197d7f0, 0x419e002c ]
+      - [ be32, 0x0197d7f4, 0x816a0000 ]
+      - [ be32, 0x0197d7f8, 0x2f8b001f ]
+      - [ be32, 0x0197d7fc, 0x409d0020 ]
+      - [ be32, 0x0197d800, 0x8129e0bc ]
+      - [ be32, 0x0197d804, 0x7f8b4800 ]
+      - [ be32, 0x0197d808, 0x419d0014 ]
+      - [ be32, 0x0197d80c, 0x814a0004 ]
+      - [ be32, 0x0197d810, 0x6d4a424e ]
+      - [ be32, 0x0197d814, 0x2b8a4433 ]
+      - [ be32, 0x0197d818, 0x419e0008 ]
+      - [ be32, 0x0197d81c, 0x90030094 ]
+      - [ be32, 0x0197d820, 0x4afa53cc ]
+
+  "ACVD DLC Enrollment Preservation":
+    Games:
+      "Armored Core: Verdict Day":
+        BLUS31194: [ 01.02 ]
+    Author: "ACVD community server project"
+    Patch Version: 1.0.0
+    Notes: "Load installed DLC before first-enrollment validation. Preserve the local pilot name until online history exists. Keep native ownership, validation, and signature checks."
+    Patch:
+      - [ be32, 0x002b65fc, 0x809f0094 ]
+      - [ be32, 0x00eef814, 0x48a8dc61 ]
+      - [ be32, 0x0197d474, 0xf8410028 ]
+      - [ be32, 0x0197d478, 0x81230000 ]
+      - [ be32, 0x0197d47c, 0x6d2901c7 ]
+      - [ be32, 0x0197d480, 0x2b895280 ]
+      - [ be32, 0x0197d484, 0x409e0028 ]
+      - [ be32, 0x0197d488, 0x8123004c ]
+      - [ be32, 0x0197d48c, 0x2f890000 ]
+      - [ be32, 0x0197d490, 0x419e001c ]
+      - [ be32, 0x0197d494, 0x81490004 ]
+      - [ be32, 0x0197d498, 0x81690008 ]
+      - [ be32, 0x0197d49c, 0x7d4a5b78 ]
+      - [ be32, 0x0197d4a0, 0x2f8a0000 ]
+      - [ be32, 0x0197d4a4, 0x409e0008 ]
+      - [ be32, 0x0197d4a8, 0x4e800020 ]
+      - [ be32, 0x0197d4ac, 0x480f1ab8 ]

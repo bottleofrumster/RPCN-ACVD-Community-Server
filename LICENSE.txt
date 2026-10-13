@@ -1,0 +1,16 @@
+ACVD ATTRIBUTION LICENSE
+
+Permission is granted to use, copy, modify and distribute the original project
+code free of charge, provided that all copies and modified versions retain
+this notice and give credit to both:
+
+  bottleofrumster
+  NatsuDragneelTheFireDragon
+
+Include these credits in the README or other documentation supplied with the
+code or compiled software.
+
+This permission applies only to original project code. Third-party code and
+game assets retain their existing licenses and restrictions.
+
+The software is provided "as is", without warranty of any kind.

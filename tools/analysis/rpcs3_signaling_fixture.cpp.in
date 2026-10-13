@@ -1,0 +1,152 @@
+// Harness dependencies are doubles. Lifecycle/callback implementations below
+// are extracted verbatim from the supplied upstream checkout by the runner.
+#include <cstdint>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <vector>
+#include <functional>
+using u32 = std::uint32_t;
+using u64 = std::uint64_t;
+using u16 = std::uint16_t;
+using s32 = std::int32_t;
+constexpr s32 SCE_NP_SIGNALING_CONN_STATUS_INACTIVE = 0;
+constexpr s32 SCE_NP_SIGNALING_CONN_STATUS_PENDING = 1;
+constexpr s32 SCE_NP_SIGNALING_CONN_STATUS_ACTIVE = 2;
+constexpr s32 SCE_NP_SIGNALING_EVENT_ESTABLISHED = 1;
+constexpr s32 SCE_NP_SIGNALING_EVENT_DEAD = 0;
+constexpr s32 SCE_NP_SIGNALING_EVENT_EXT_MUTUAL_ACTIVATED = 12;
+constexpr s32 SCE_NP_MATCHING2_SIGNALING_EVENT_Dead = 0x5101;
+constexpr s32 SCE_NP_MATCHING2_SIGNALING_EVENT_Established = 0x5102;
+constexpr s32 SCE_NP_SIGNALING_ERROR_TERMINATED_BY_MYSELF = -1;
+constexpr s32 CELL_OK = 0;
+using SceNpId = std::string;
+struct signaling_info {
+    s32 conn_status = 0;
+    std::set<u32> sig1_contexts;
+    u64 room_id = 0;
+    u16 member_id = 0;
+    u32 conn_id = 1;
+    bool op_activated = false;
+};
+struct ppu_thread {};
+using callback = std::function<void(ppu_thread&, u32, u32, s32, s32, int)>;
+struct context { std::mutex mutex; callback handler, ext_handler; int arg = 0, ext_arg = 0; };
+std::map<u32, std::shared_ptr<context>> contexts;
+using event = std::tuple<u32, u32, s32>;
+std::vector<event> callbacks, extended;
+auto get_signaling_context(u32 id) {
+    auto it = contexts.find(id);
+    return it == contexts.end() ? nullptr : it->second;
+}
+template<class F> void sysutil_register_cb(F f) { ppu_thread ppu; f(ppu); }
+namespace np {
+std::string npid_to_string(const SceNpId& id) { return id; }
+struct np_handler { unsigned requests = 0; void req_sign_infos(const std::string&, u32) { ++requests; } };
+}
+template<class T> struct named_thread : T {};
+struct fx {
+    template<class T> T& get() { static T instance; return instance; }
+} storage;
+fx* g_fxo = &storage;
+struct logger { template<class... T> void trace(T...) {} template<class... T> void notice(T...) {} } sign_log;
+struct signaling_handler {
+    std::mutex data_mutex;
+    std::set<u32> sig_ctx_lst;
+    std::map<u32, std::shared_ptr<signaling_info>> sig_peers;
+    std::vector<std::pair<u32, bool>> stops;
+    std::vector<std::tuple<u64, u16, s32>> room_events;
+    unsigned retired = 0;
+    signaling_handler() {
+        sig_peers[1] = std::make_shared<signaling_info>();
+        contexts.clear(); callbacks.clear(); extended.clear();
+        for (u32 id : {10u, 20u, 30u}) {
+            auto ctx = std::make_shared<context>();
+            ctx->handler = [](ppu_thread&, u32 c, u32 peer, s32 ev, s32, int) { callbacks.emplace_back(c, peer, ev); };
+            ctx->ext_handler = [](ppu_thread&, u32 c, u32 peer, s32 ev, s32, int) { extended.emplace_back(c, peer, ev); };
+            contexts[id] = ctx; sig_ctx_lst.insert(id);
+        }
+    }
+    u32 get_always_conn_id(const SceNpId&) { return 1; }
+    void stop_sig_nl(u32 id, bool force) { stops.emplace_back(id, force); }
+    void retire_all_packets(std::shared_ptr<signaling_info>&) { ++retired; }
+    void signal_sig2_callback(u64 r, u16 m, s32 ev, s32) { if (r) room_events.emplace_back(r, m, ev); }
+    void remove_sig_ctx(u32);
+    void clear_sig_ctx();
+    void stop_sig(u32, u32, bool);
+    void stop_sig(u32, bool);
+    void disconnect_sig2_users(u64);
+    u32 init_sig1(u32, const SceNpId&);
+    u32 init_sig1(const SceNpId&);
+    void signal_sig_callback(u32, s32, s32, std::optional<u32> = {});
+    void signal_ext_sig_callback(u32, s32, s32, std::optional<u32> = {}) const;
+    void update_si_status(std::shared_ptr<signaling_info>&, s32, s32);
+};
+// ACTUAL_UPSTREAM_METHODS
+void require(bool ok, const char* name) { if (!ok) throw std::runtime_error(name); }
+int main() {
+    unsigned passed = 0;
+    auto test = [&](const char* name, auto f) { f(); ++passed; std::cout << "PASS " << name << '\n'; };
+    try {
+        test("room close retains persistent link and clears room identity", [] {
+            signaling_handler h; auto p = h.sig_peers[1]; p->conn_status = 2; p->room_id = 27; p->member_id = 33;
+            h.init_sig1(10, "peer"); callbacks.clear(); h.disconnect_sig2_users(27);
+            require(h.stops.empty(), "room close stopped owned transport");
+            require(p->room_id == 0 && p->member_id == 0, "stale room metadata");
+            require(callbacks.empty() && h.room_events.size() == 1, "wrong disconnect callback scope");
+            h.disconnect_sig2_users(27); h.disconnect_sig2_users(0);
+            require(h.room_events.size() == 1 && h.stops.empty(), "duplicate room release");
+        });
+        test("room-only connection stops and unrelated room stays intact", [] {
+            signaling_handler h; auto p = h.sig_peers[1]; p->conn_status = 2; p->room_id = 27; p->member_id = 33;
+            h.disconnect_sig2_users(28); require(h.stops.empty() && p->room_id == 27, "wrong room stopped");
+            h.disconnect_sig2_users(27); require(h.stops == std::vector<std::pair<u32,bool>>{{1,false}}, "room-only transport leaked");
+        });
+        test("context release cannot kill another context or room", [] {
+            signaling_handler h; auto p = h.sig_peers[1]; p->conn_status = 2; p->room_id = 27;
+            h.init_sig1(10, "peer"); h.init_sig1(20, "peer");
+            h.stop_sig(30, 1, true); h.stop_sig(10, 1, true); h.stop_sig(10, 1, true);
+            require(p->sig1_contexts == std::set<u32>{20} && h.stops.empty(), "context ownership lost");
+            h.stop_sig(20, 1, true); require(h.stops.empty(), "room transport stopped");
+            h.disconnect_sig2_users(27); require(h.stops.size() == 1, "last owner did not release");
+        });
+        test("new context gets established once on already-active peer", [] {
+            signaling_handler h; auto p = h.sig_peers[1]; p->conn_status = 2; p->op_activated = true;
+            h.init_sig1(10, "peer"); h.init_sig1(10, "peer");
+            require(callbacks == std::vector<event>{{10,1,1}}, "missing/duplicate/wrong-context established");
+            require(extended == std::vector<event>{{10,1,1},{10,1,12}}, "wrong extended callbacks");
+        });
+        test("context destruction and clear release only unowned transports", [] {
+            signaling_handler h; auto p = h.sig_peers[1]; p->conn_status = 2;
+            h.init_sig1(10, "peer"); h.init_sig1(20, "peer"); h.remove_sig_ctx(10);
+            require(h.stops.empty(), "destroy stopped other context");
+            h.clear_sig_ctx(); require(h.stops.size() == 1 && p->sig1_contexts.empty(), "destroy leaked last owner");
+            h.clear_sig_ctx(); require(h.stops.size() == 1, "repeated clear stopped twice");
+        });
+        test("genuine peer death is not hidden; inactive peer can reconnect", [] {
+            signaling_handler h; auto p = h.sig_peers[1]; p->conn_status = 2;
+            h.init_sig1(10, "peer"); callbacks.clear();
+            h.update_si_status(p, 0, -2);
+            require(!callbacks.empty() && p->conn_status == 0 && h.retired == 1, "real disconnect hidden");
+            const auto requests = g_fxo->get<named_thread<np::np_handler>>().requests;
+            h.init_sig1(10, "peer"); h.init_sig1(20, "peer");
+            require(p->conn_status == 1 && g_fxo->get<named_thread<np::np_handler>>().requests == requests + 1, "reconnect request mismatch");
+        });
+        test("terminate reports only terminating context while shared", [] {
+            signaling_handler h; auto p = h.sig_peers[1]; p->conn_status = 2;
+            h.init_sig1(10, "peer"); h.init_sig1(20, "peer"); callbacks.clear();
+            h.stop_sig(10, 1, false);
+            require(h.stops.empty() && callbacks == std::vector<event>{{10,1,0}}, "shared terminate callback mismatch");
+            h.stop_sig(20, 1, false); require(h.stops.size() == 1, "last terminate leaked transport");
+        });
+    } catch (const std::exception& e) {
+        std::cerr << "FAIL " << e.what() << '\n'; return 1;
+    }
+    std::cout << passed << " lifecycle checks passed (transport/callback scheduling doubled; not native gameplay)\n";
+}

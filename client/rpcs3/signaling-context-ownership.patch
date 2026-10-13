@@ -1,0 +1,207 @@
+diff --git a/rpcs3/Emu/Cell/Modules/sceNp.cpp b/rpcs3/Emu/Cell/Modules/sceNp.cpp
+index 47e1038..9f65910 100644
+--- a/rpcs3/Emu/Cell/Modules/sceNp.cpp
++++ b/rpcs3/Emu/Cell/Modules/sceNp.cpp
+@@ -6815,7 +6815,7 @@ error_code sceNpSignalingActivateConnection(u32 ctx_id, vm::ptr<SceNpId> npId, v
+ 		return SCE_NP_SIGNALING_ERROR_OWN_NP_ID;
+ 
+ 	auto& sigh = g_fxo->get<named_thread<signaling_handler>>();
+-	*conn_id = sigh.init_sig1(*npId);
++	*conn_id = sigh.init_sig1(ctx_id, *npId);
+ 
+ 	return CELL_OK;
+ }
+@@ -6833,7 +6833,9 @@ error_code sceNpSignalingDeactivateConnection(u32 ctx_id, u32 conn_id)
+ 
+ 	auto& sigh = g_fxo->get<named_thread<signaling_handler>>();
+ 
+-	sigh.stop_sig(conn_id, true);
++	if (!get_signaling_context(ctx_id))
++		return SCE_NP_SIGNALING_ERROR_CTX_NOT_FOUND;
++	sigh.stop_sig(ctx_id, conn_id, true);
+ 
+ 	return CELL_OK;
+ }
+@@ -6851,7 +6853,9 @@ error_code sceNpSignalingTerminateConnection(u32 ctx_id, u32 conn_id)
+ 
+ 	auto& sigh = g_fxo->get<named_thread<signaling_handler>>();
+ 
+-	sigh.stop_sig(conn_id, false);
++	if (!get_signaling_context(ctx_id))
++		return SCE_NP_SIGNALING_ERROR_CTX_NOT_FOUND;
++	sigh.stop_sig(ctx_id, conn_id, false);
+ 
+ 	return CELL_OK;
+ }
+diff --git a/rpcs3/Emu/NP/signaling_handler.cpp b/rpcs3/Emu/NP/signaling_handler.cpp
+index a4c5976..91b9842 100644
+--- a/rpcs3/Emu/NP/signaling_handler.cpp
++++ b/rpcs3/Emu/NP/signaling_handler.cpp
+@@ -57,12 +57,24 @@ void signaling_handler::remove_sig_ctx(u32 ctx_id)
+ {
+ 	std::lock_guard lock(data_mutex);
+ 	sig_ctx_lst.erase(ctx_id);
++	for (auto& [conn_id, si] : sig_peers)
++	{
++		if (si->sig1_contexts.erase(ctx_id) && si->sig1_contexts.empty() && !si->room_id)
++			stop_sig_nl(conn_id, true);
++	}
+ }
+ 
+ void signaling_handler::clear_sig_ctx()
+ {
+ 	std::lock_guard lock(data_mutex);
+ 	sig_ctx_lst.clear();
++	for (auto& [conn_id, si] : sig_peers)
++	{
++		const bool owned = !si->sig1_contexts.empty();
++		si->sig1_contexts.clear();
++		if (owned && !si->room_id)
++			stop_sig_nl(conn_id, true);
++	}
+ }
+ 
+ void signaling_handler::add_match2_ctx(u16 ctx_id)
+@@ -83,10 +95,12 @@ void signaling_handler::clear_match2_ctx()
+ 	match2_ctx_lst.clear();
+ }
+ 
+-void signaling_handler::signal_sig_callback(u32 conn_id, s32 event, s32 error_code)
++void signaling_handler::signal_sig_callback(u32 conn_id, s32 event, s32 error_code, std::optional<u32> only_ctx)
+ {
+ 	for (const auto& ctx_id : sig_ctx_lst)
+ 	{
++		if (only_ctx && ctx_id != *only_ctx)
++			continue;
+ 		const auto ctx = get_signaling_context(ctx_id);
+ 
+ 		if (!ctx)
+@@ -106,13 +120,15 @@ void signaling_handler::signal_sig_callback(u32 conn_id, s32 event, s32 error_co
+ 	}
+ 
+ 	// extended callback also receives normal events
+-	signal_ext_sig_callback(conn_id, event, error_code);
++	signal_ext_sig_callback(conn_id, event, error_code, only_ctx);
+ }
+ 
+-void signaling_handler::signal_ext_sig_callback(u32 conn_id, s32 event, s32 error_code) const
++void signaling_handler::signal_ext_sig_callback(u32 conn_id, s32 event, s32 error_code, std::optional<u32> only_ctx) const
+ {
+ 	for (const auto ctx_id : sig_ctx_lst)
+ 	{
++		if (only_ctx && ctx_id != *only_ctx)
++			continue;
+ 		const auto ctx = get_signaling_context(ctx_id);
+ 
+ 		if (!ctx)
+@@ -742,10 +758,17 @@ void signaling_handler::stop_sig_nl(u32 conn_id, bool forceful)
+ 	wake_up();
+ }
+ 
+-void signaling_handler::stop_sig(u32 conn_id, bool forceful)
++void signaling_handler::stop_sig(u32 ctx_id, u32 conn_id, bool forceful)
+ {
+ 	std::lock_guard lock(data_mutex);
+-	stop_sig_nl(conn_id, forceful);
++	const auto found = sig_peers.find(conn_id);
++	if (found == sig_peers.end() || !found->second->sig1_contexts.erase(ctx_id))
++		return;
++	const auto& si = found->second;
++	if (si->sig1_contexts.empty() && !si->room_id)
++		stop_sig_nl(conn_id, forceful);
++	else if (!forceful)
++		signal_sig_callback(conn_id, SCE_NP_SIGNALING_EVENT_DEAD, SCE_NP_SIGNALING_ERROR_TERMINATED_BY_MYSELF, ctx_id);
+ }
+ 
+ void signaling_handler::disconnect_sig2_users(u64 room_id)
+@@ -754,9 +777,18 @@ void signaling_handler::disconnect_sig2_users(u64 room_id)
+ 
+ 	for (auto& [conn_id, si] : sig_peers)
+ 	{
+-		if (si->room_id == room_id)
++		if (room_id && si->room_id == room_id)
+ 		{
+-			stop_sig_nl(conn_id, false);
++			// Release the room, not an NP link still owned by the game's team
++			// or mercenary context. Clear the old room identity before future
++			// connection events, so reconnects cannot notify a departed room.
++			const u16 member_id = si->member_id;
++			si->room_id = 0;
++			si->member_id = 0;
++			if (si->conn_status != SCE_NP_SIGNALING_CONN_STATUS_INACTIVE)
++				signal_sig2_callback(room_id, member_id, SCE_NP_MATCHING2_SIGNALING_EVENT_Dead, SCE_NP_SIGNALING_ERROR_TERMINATED_BY_MYSELF);
++			if (si->sig1_contexts.empty())
++				stop_sig_nl(conn_id, false);
+ 		}
+ 	}
+ }
+@@ -796,11 +828,12 @@ u32 signaling_handler::get_always_conn_id(const SceNpId& npid)
+ 	return conn_id;
+ }
+ 
+-u32 signaling_handler::init_sig1(const SceNpId& npid)
++u32 signaling_handler::init_sig1(u32 ctx_id, const SceNpId& npid)
+ {
+ 	std::lock_guard lock(data_mutex);
+ 
+ 	const u32 conn_id = get_always_conn_id(npid);
++	const bool added = sig_peers[conn_id]->sig1_contexts.insert(ctx_id).second;
+ 
+ 	if (sig_peers[conn_id]->conn_status == SCE_NP_SIGNALING_CONN_STATUS_INACTIVE)
+ 	{
+@@ -811,6 +844,13 @@ u32 signaling_handler::init_sig1(const SceNpId& npid)
+ 		auto& nph = g_fxo->get<named_thread<np::np_handler>>();
+ 		nph.req_sign_infos(np::npid_to_string(npid), conn_id);
+ 	}
++	else if (added && sig_peers[conn_id]->conn_status == SCE_NP_SIGNALING_CONN_STATUS_ACTIVE)
++	{
++		// This context did not receive the earlier room/other-context event.
++		signal_sig_callback(conn_id, SCE_NP_SIGNALING_EVENT_ESTABLISHED, CELL_OK, ctx_id);
++		if (sig_peers[conn_id]->op_activated)
++			signal_ext_sig_callback(conn_id, SCE_NP_SIGNALING_EVENT_EXT_MUTUAL_ACTIVATED, CELL_OK, ctx_id);
++	}
+ 
+ 	return conn_id;
+ }
+diff --git a/rpcs3/Emu/NP/signaling_handler.h b/rpcs3/Emu/NP/signaling_handler.h
+index c97c049..c69ea5f 100644
+--- a/rpcs3/Emu/NP/signaling_handler.h
++++ b/rpcs3/Emu/NP/signaling_handler.h
+@@ -26,6 +26,8 @@ struct signaling_info
+ 	u32 conn_id = 0;
+ 	bool op_activated = false;
+ 	u32 info_counter = 10;
++	// A Matching2 room and multiple NP contexts can share this transport.
++	std::set<u32> sig1_contexts;
+ 
+ 	// Matching2
+ 	u64 room_id = 0;
+@@ -61,7 +63,7 @@ public:
+ 
+ 	void set_self_sig_info(SceNpId& npid);
+ 
+-	u32 init_sig1(const SceNpId& npid);
++	u32 init_sig1(u32 ctx_id, const SceNpId& npid);
+ 	u32 init_sig2(const SceNpId& npid, u64 room_id, u16 member_id);
+ 	std::optional<signaling_info> get_sig_infos(u32 conn_id) const;
+ 	std::optional<u32> get_conn_id_from_npid(const SceNpId& npid) const;
+@@ -75,7 +77,7 @@ public:
+ 	void clear_match2_ctx();
+ 
+ 	void start_sig(u32 conn_id, u32 addr, u16 port);
+-	void stop_sig(u32 conn_id, bool forceful);
++	void stop_sig(u32 ctx_id, u32 conn_id, bool forceful);
+ 	void send_information_packets(u32 addr, u16 port, const SceNpId& npid);
+ 
+ 	void disconnect_sig2_users(u64 room_id);
+@@ -118,8 +120,8 @@ private:
+ 	static void update_si_mapped_addr(std::shared_ptr<signaling_info>& si, u32 new_addr, u16 new_port);
+ 	void update_si_status(std::shared_ptr<signaling_info>& si, s32 new_status, s32 error_code);
+ 	void update_ext_si_status(std::shared_ptr<signaling_info>& si, bool op_activated);
+-	void signal_sig_callback(u32 conn_id, s32 event, s32 error_code);
+-	void signal_ext_sig_callback(u32 conn_id, s32 event, s32 error_code) const;
++	void signal_sig_callback(u32 conn_id, s32 event, s32 error_code, std::optional<u32> only_ctx = {});
++	void signal_ext_sig_callback(u32 conn_id, s32 event, s32 error_code, std::optional<u32> only_ctx = {}) const;
+ 	void signal_sig2_callback(u64 room_id, u16 member_id, SceNpMatching2Event event, s32 error_code) const;
+ 
+ 	static bool validate_signaling_packet(const signaling_packet* sp);

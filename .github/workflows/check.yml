@@ -1,0 +1,35 @@
+name: Source and exported artifact
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e '.[test,dev]'
+      - run: bash scripts/build_native.sh
+      - run: python -m pytest -q -p no:cacheprovider
+      - run: ruff check --no-cache src tests
+      - name: Build isolated source candidate
+        run: |
+          python -c 'import json; from pathlib import Path; Path("/tmp/private-patterns.json").write_text(json.dumps([str(Path.home()) + "/"]))'
+          python scripts/export_review.py --private-patterns /tmp/private-patterns.json --output /tmp/acvd-source.zip
+          python -m zipfile -e /tmp/acvd-source.zip /tmp/acvd-export
+          python scripts/check_public_source.py --root /tmp/acvd-export/ACVD-source --verify-artifact
+      - name: Test extracted source, without host data or Git history
+        working-directory: /tmp/acvd-export/ACVD-source
+        run: |
+          python -m venv /tmp/acvd-artifact-venv
+          /tmp/acvd-artifact-venv/bin/python -m pip install -e '.[test,dev]'
+          bash scripts/build_native.sh
+          /tmp/acvd-artifact-venv/bin/acvd-server init
+          /tmp/acvd-artifact-venv/bin/python -m pytest -q -p no:cacheprovider
+          /tmp/acvd-artifact-venv/bin/ruff check --no-cache src tests
+          /tmp/acvd-artifact-venv/bin/python scripts/check_public_source.py
